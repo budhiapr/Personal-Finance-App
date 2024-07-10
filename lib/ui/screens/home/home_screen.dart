@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:personal_finance_app/core/models/transaction_model.dart';
@@ -39,9 +41,11 @@ class HomeScreen extends ConsumerWidget {
         ref.watch(transactionsNotifierProvider.notifier);
     final transactions = ref.watch(transactionsNotifierProvider);
 
+    final balance = ref.read(transactionsNotifierProvider);
+
     return Scaffold(
       floatingActionButton:
-          _floatingActionSection(context, transactionsNotifier),
+          _floatingActionSection(context, transactionsNotifier, transactions),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: SafeArea(
         child: Padding(
@@ -49,12 +53,20 @@ class HomeScreen extends ConsumerWidget {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                _headerSection(
-                  context,
-                  transactionsNotifier.getTotalAmount(),
-                ),
-                _tableSection(context, transactions),
-                const SizedBox(height: 100),
+                transactionsNotifier.isLoading
+                    ? SizedBox(
+                        height: MediaQuery.of(context).size.height,
+                        child: Center(child: const CircularProgressIndicator()))
+                    : Column(
+                        children: [
+                          _headerSection(
+                            context,
+                            transactionsNotifier.getTotalAmount(balance),
+                          ),
+                          _tableSection(context, transactions),
+                          const SizedBox(height: 100),
+                        ],
+                      ),
               ],
             ),
           ),
@@ -66,6 +78,7 @@ class HomeScreen extends ConsumerWidget {
   Padding _floatingActionSection(
     BuildContext context,
     TransactionsNotifier transactionsNotifier,
+    List<TransactionModel> transactions,
   ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 40),
@@ -79,7 +92,8 @@ class HomeScreen extends ConsumerWidget {
           FloatingActionButton(
             child: const Icon(Icons.add),
             onPressed: () {
-              showAddTransactionDialog(context, transactionsNotifier);
+              showAddTransactionDialog(
+                  context, transactionsNotifier, transactions);
             },
           ),
         ],
@@ -113,7 +127,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _tableSection(BuildContext context, List<Transaction> transactions) {
+  Widget _tableSection(
+      BuildContext context, List<TransactionModel> transactions) {
     return Column(
       children: [
         Row(

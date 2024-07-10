@@ -1,23 +1,22 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:flutter/foundation.dart';
 import 'package:personal_finance_app/utils/types/transaction_type.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'transaction_model.freezed.dart';
 part 'transaction_model.g.dart';
 
 @freezed
-abstract class Transaction with _$Transaction {
+class TransactionModel with _$TransactionModel {
   /// Creates a transaction model.
   @Assert('amount >= 0')
-  const factory Transaction({
+  const factory TransactionModel({
     required int id,
     required String title,
     required double amount,
-    required DateTime date,
-    required TransactionType type,
-  }) = _Transaction;
+    DateTime? date,
+    TransactionType? type,
+  }) = _TransactionModel;
 
   /// Creates a transaction model from JSON.
-  factory Transaction.fromJson(Map<String, dynamic> json) =>
-      _$TransactionFromJson(json);
+  factory TransactionModel.fromJson(Map<String, dynamic> json) =>
+      _$TransactionModelFromJson(json);
 }
